@@ -5,9 +5,11 @@ import (
 	"runtime"
 )
 
-var messages map[uint32]string
+type ErrorID uint32
 
-func Init(m map[uint32]string) {
+var messages map[ErrorID]string
+
+func Init(m map[ErrorID]string) {
 	messages = m
 }
 
@@ -25,7 +27,7 @@ func (e *Error) Message() string {
 		return ""
 	}
 
-	if m, ok := messages[uint32(e.ErrorID)]; ok {
+	if m, ok := messages[ErrorID(e.ErrorID)]; ok {
 		return fmt.Sprintf(m, e.Args...)
 	} else {
 		return fmt.Sprintf("%+v", e.Args)
@@ -52,7 +54,7 @@ func IsQError(err error) bool {
 	return ok
 }
 
-func New(errorID int64, args ...interface{}) error {
+func New(errorID ErrorID, args ...interface{}) error {
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
 		file = "UNKNOWN"
@@ -65,7 +67,7 @@ func New(errorID int64, args ...interface{}) error {
 	}
 
 	return &Error{
-		ErrorID:    errorID,
+		ErrorID:    int64(errorID),
 		Args:       args,
 		StackFile:  file,
 		StackLine:  line,
@@ -96,7 +98,7 @@ func Wrap(e error) error {
 	}
 }
 
-func WrapWith(e error, errorID int64, args ...interface{}) error {
+func WrapWith(e error, errorID ErrorID, args ...interface{}) error {
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
 		file = "UNKNOWN"
@@ -109,7 +111,7 @@ func WrapWith(e error, errorID int64, args ...interface{}) error {
 	}
 
 	return &Error{
-		ErrorID:    errorID,
+		ErrorID:    int64(errorID),
 		Args:       args,
 		StackFile:  file,
 		StackLine:  line,

@@ -7,24 +7,30 @@ import (
 )
 
 func testA() error {
-	return qerror.New(1, "hoge")
+	return qerror.New(InvalidArgument, "hoge")
 }
 
 func testB() error {
 	err := testA()
-	return qerror.WrapWith(err, 2)
+	return qerror.WrapWith(err, DBError)
 }
 
 func testC() error {
 	err := testB()
-	return qerror.WrapWith(err, 3, "fuga", "piyo")
+	return qerror.WrapWith(err, ValidationError, "fuga", "piyo")
 }
 
+const (
+	InvalidArgument qerror.ErrorID = iota
+	DBError
+	ValidationError
+)
+
 func main() {
-	qerror.Init(map[uint32]string{
-		1: "invalid argument: %s",
-		2: "db error",
-		3: "validation error: %s %s",
+	qerror.Init(map[qerror.ErrorID]string{
+		InvalidArgument: "invalid argument: %s",
+		DBError:         "db error",
+		ValidationError: "validation error: %s %s",
 	})
 
 	fmt.Println(testC())
