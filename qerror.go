@@ -35,7 +35,8 @@ func (e *Error) Message() string {
 }
 
 func (e *Error) Error() string {
-	msg := fmt.Sprintf("%s\n\t%s:%d %s",
+	msg := fmt.Sprintf("[ERR: %d] %s\n\t%s:%d %s",
+		e.ErrorID,
 		e.Message(),
 		e.StackFile,
 		e.StackLine,
